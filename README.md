@@ -13,10 +13,9 @@ An ESP32 audio recorder and player. It records from a microphone to MP3 files on
 | I2S MEMS microphone breakout | SPH0645, ICS-43434, or INMP441. |
 | I2S amplifier breakout | MAX98357A (3 W class-D). |
 | Speaker | 4 to 8 ohm, around 3 W. |
-| 3 momentary push buttons | Record, Play/Stop, Next. |
+| Rotary phone dial | An old telephone dial with a pulse contact (two wires). Dialing a digit opens the contact that many times (ten pulses for 0). |
 | 20x4 I2C character LCD (HD44780 with PCF8574 backpack) | Shows the file list, the selected recording and record status. Default I2C address 0x27 (some are 0x3F). |
-| EC11-style rotary encoder with push switch | The dial: turn to scroll files, click to select. |
-| On/on SPDT toggle switch | RECORD / LISTEN mode. |
+| On/on SPDT toggle switch | Switches between RECORD and LISTEN mode. |
 | 1 external LED (any color, 3 or 5 mm) and a 330 ohm resistor | Recording indicator. The carrier board has the resistor and a 2-pin header, so the LED can sit on your enclosure on short wires. |
 | LiPo battery, 3.7 V (optional) | Plugs into the Feather's JST connector for portable use. |
 | Breadboard and jumper wires, or a perfboard | Header pins for the Feather and breakouts. |
@@ -58,15 +57,14 @@ The microphone and amplifier share the I2S clock lines (BCLK and WS) and use sep
 | DIN | D5 |
 | Speaker +/- | Speaker |
 
-### Buttons
+### Rotary phone dial
 
-Wire one leg of each button to the pin and the other to GND. The sketch enables the internal pull-ups.
+Use the pulse contact, the pair of wires that opens and closes as the dial returns home. Which wires those are depends on the phone, so test with a continuity meter: the pair that is closed at rest and clicks open and closed while the dial spins back. The other contacts (the off-normal switch, the hook switch and the bell) are not used.
 
-| Button | Feather |
+| Dial | Feather |
 |---|---|
-| Record / Stop | A0 |
-| Play / Stop | A1 |
-| Next file | A2 |
+| Pulse contact, one wire | A3 |
+| Pulse contact, other wire | GND |
 
 ### Recording LED
 
@@ -87,15 +85,6 @@ The LED is external and uses D11, so the Feather's own D13 LED stays unused.
 | SCL | SCL |
 
 > Most PCF8574 backpacks pull SDA and SCL up to their own supply. With the LCD on 5 V that puts 5 V on the ESP32's 3.3 V pins. Cut or remove the backpack's pull-up resistors (the Feather already has I2C pull-ups to 3.3 V), or use a 3.3 V LCD.
-
-### Rotary encoder (dial)
-
-| Encoder | Feather |
-|---|---|
-| A | A3 |
-| B | A4 |
-| Push switch (S1) | A5 |
-| Common (C) and the other switch pin (S2) | GND |
 
 ### Mode toggle (on/on SPDT)
 
@@ -118,19 +107,23 @@ The LED is external and uses D11, so the Feather's own D13 LED stays unused.
 
 ## Usage
 
-Flip the **mode toggle** first. The dial and LCD work like this:
+Flip the **mode toggle** to RECORD or LISTEN, then use the dial.
 
-- **LISTEN mode:** turn the dial to scroll through the MP3 files on the card. The LCD shows the previous, selected (marked with `>`) and next file, and the position such as `3/7`. Click the dial to play the selected file, and click again to stop.
-- **RECORD mode:** the LCD shows the name the next recording will get. Click the dial to start and click again to stop. While recording it shows the elapsed time out of 5:00. For 1 minute after a recording ends it shows how long you have left to re-record.
-- Changing the toggle while recording or playing stops it.
-- The three push buttons below still work in either mode.
+**RECORD mode**
 
+| Dial | What it does |
+|---|---|
+| 9 | Record. Dial 9 again to stop. Recording also stops by itself after 5 minutes. Files are saved as `REC001.mp3`, `REC002.mp3`, and so on. |
+| 8 | Keep. Locks in the recording you just made so it can no longer be replaced. |
+| 5 | Delete and re-record. Within 1 minute after a recording ends, this deletes that recording and records over it under the same name. Only the most recent recording can be replaced. |
 
-- **Record:** press Record to start and press it again to stop. Files are saved as `REC001.mp3`, `REC002.mp3`, and so on. Recording stops by itself after 5 minutes.
-- **Re-record:** within 1 minute after a recording ends, pressing Record (or clicking the dial in RECORD mode) again deletes that recording and records over it, keeping the same file name. Only the most recent recording can be replaced. After the 1 minute window, or after a reset or power cycle, Record starts a new file instead and older files are never touched.
-- **Recording LED:** it is on while recording. At the 1 minute mark it goes dark for 2 seconds, then comes back on. For the last 30 seconds (4:30 to 5:00) it blinks once per second until recording stops. It is off when not recording.
-- **Play:** press Play to play the selected file. Press it again to stop.
-- **Next:** press Next to choose the next MP3 on the card. It wraps around, and pressing it during playback skips to the next file.
+After a recording ends the LCD shows how many seconds are left to keep or re-record it. Dialing 9 instead starts a new file and leaves the previous one as it is. After the minute is up, or after a reset or power cycle, the old recording can no longer be replaced.
+
+**LISTEN mode:** dial the number of the recording you want. Dial 5 for `REC005.mp3`, or 1 then 2 for `REC012.mp3` (up to three digits). The LCD shows the number and file name as you dial, and it plays about 2 seconds after the last digit. Dial any digit while it plays to stop it.
+
+Flipping the toggle while recording or playing stops it.
+
+**Recording LED:** it is on while recording. At the 1 minute mark it goes dark for 2 seconds, then comes back on. For the last 30 seconds (4:30 to 5:00) it blinks once per second until recording stops. It is off when not recording.
 
 ## Troubleshooting
 
@@ -142,4 +135,4 @@ Flip the **mode toggle** first. The dial and LCD work like this:
 
 ## Circuit board
 
-The `hardware/` folder has a KiCad 10 schematic and a 72 x 92 mm two-layer carrier board. The Feather and the three breakouts plug into sockets, and the dial, buttons and LCD connect to it. See [hardware/README.md](hardware/README.md).
+The `hardware/` folder has a KiCad 10 schematic and a 72 x 86 mm two-layer carrier board. The Feather and the three breakouts plug into sockets, and the phone dial, mode toggle, LED and LCD connect to it. See [hardware/README.md](hardware/README.md).

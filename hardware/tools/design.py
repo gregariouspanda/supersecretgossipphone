@@ -6,8 +6,7 @@ FEATHER_12 = ["BAT","EN","USB","D13","D12","D11","D10","D9","D6","D5","SCL","SDA
 # Net assigned to a Feather pin (others are unconnected).
 FEATHER_NETS = {
     "3V3":"+3V3","GND":"GND","USB":"+5V",
-    "A0":"BTN_REC","A1":"BTN_PLAY","A2":"BTN_NEXT",
-    "A3":"ENC_A","A4":"ENC_B","A5":"ENC_SW","D13":"MODE","SCL":"I2C_SCL","SDA":"I2C_SDA",
+    "A3":"DIAL","D13":"MODE","SCL":"I2C_SCL","SDA":"I2C_SDA",
     "SCK":"SD_SCK","MOSI":"SD_MOSI","MISO":"SD_MISO","D10":"SD_CS",
     "D11":"LED_DRV","D9":"I2S_BCLK","D6":"I2S_WS","D12":"I2S_MIC","D5":"I2S_SPK",
 }

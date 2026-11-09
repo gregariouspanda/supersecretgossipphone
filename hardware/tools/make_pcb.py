@@ -9,7 +9,7 @@ from pcbnew import VECTOR2I, FromMM, ToMM
 from design import *
 
 FP = "/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints/"
-BW, BH = 72.0, 92.0          # board size, mm
+BW, BH = 72.0, 86.0          # board size, mm
 G = 0.127                     # router grid, mm
 CLR = 0.2
 board = pcbnew.BOARD()
@@ -61,15 +61,10 @@ r1 = add_fp("Resistor_THT", "R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal", 
 for pd in r1.Pads(): pd.SetNet(net("/LED_DRV" if pd.GetNumber()=="1" else "/LED_A"))
 j6 = add_fp("Connector_PinHeader_2.54mm", "PinHeader_1x02_P2.54mm_Vertical", "J6", "External LED", 66.04, 27.94, 0); parts["J6"] = j6
 for pd in j6.Pads(): pd.SetNet(net("/LED_A" if pd.GetNumber()=="1" else "GND"))
-parts["J7"] = row(PSK[0], PSK[1] % 4, "J7", "20x4 I2C LCD", 12.7, 83.82, 4, mapnets(nets_of(LCD_PINS)))
-parts["J8"] = row("Connector_PinHeader_2.54mm", "PinHeader_1x03_P2.54mm_Vertical", "J8", "Mode toggle", 38.1, 83.82, 3, mapnets(nets_of(MODE_PINS)))
-enc = add_fp("Rotary_Encoder", "RotaryEncoder_Alps_EC11E-Switch_Vertical_H20mm", "ENC1", "EC11 dial", 52.07, 64.77, 0); parts["ENC1"] = enc
-for pd in enc.Pads():
-    pd.SetNet(net({"A":"/ENC_A","B":"/ENC_B","S1":"/ENC_SW"}.get(pd.GetNumber(), "GND")))
-for i, (ref, nn, x) in enumerate([("SW1","/BTN_REC",15.24),("SW2","/BTN_PLAY",27.94),("SW3","/BTN_NEXT",40.64)]):
-    sw = add_fp("Button_Switch_THT", "SW_PUSH_6mm", ref, nn[1:], x, 69.85, 0); parts[ref] = sw
-    for pd in sw.Pads(): pd.SetNet(net(nn if pd.GetNumber()=="1" else "GND"))
-for i, (x, y) in enumerate([(4, 4), (68, 4), (4, 88), (68, 88)]):
+parts["J7"] = row(PSK[0], PSK[1] % 4, "J7", "20x4 I2C LCD", 12.7, 75.0, 4, mapnets(nets_of(LCD_PINS)))
+parts["J8"] = row("Connector_PinHeader_2.54mm", "PinHeader_1x03_P2.54mm_Vertical", "J8", "Mode toggle", 33.02, 75.0, 3, mapnets(nets_of(MODE_PINS)))
+parts["J9"] = row("Connector_PinHeader_2.54mm", "PinHeader_1x02_P2.54mm_Vertical", "J9", "Rotary phone dial", 53.34, 75.0, 2, mapnets({"1":"DIAL","2":"GND"}))
+for i, (x, y) in enumerate([(4, 4), (68, 4), (4, 82), (68, 82)]):
     add_fp("MountingHole", "MountingHole_2.7mm_M2.5", "H%d" % (i+1), "M2.5", x, y)
 
 # ---- board outline ------------------------------------------------------
@@ -113,7 +108,7 @@ for ref, fp in list(parts.items()):
         for L in (0, 1): paint_rect(L, cx, cy, hx, hy, k if k > 0 else -1)
         if nm and nm != "GND":
             p = pd.GetPosition(); terms.setdefault(nm, []).append((ref, pd.GetNumber(), ToMM(p.x), ToMM(p.y)))
-for (x, y) in [(4, 4), (68, 4), (4, 88), (68, 88)]:
+for (x, y) in [(4, 4), (68, 4), (4, 82), (68, 82)]:
     for L in (0, 1): paint_rect(L, x, y, 1.35+MARGIN, 1.35+MARGIN, -1)
 for L in (0, 1):                      # board edge keep-out
     e = int(0.8/G)
@@ -167,7 +162,7 @@ def route(k, sources, target):
 tracks = []   # (net, layer, (x1,y1),(x2,y2), width)
 vias = []
 POWER = {"+3V3", "+5V", "/AMP_VIN"}
-order = ["+5V", "/AMP_VIN", "+3V3", "/I2S_BCLK", "/I2S_WS", "/I2S_SPK", "/I2S_MIC", "/SD_SCK", "/SD_MOSI", "/SD_MISO", "/SD_CS", "/BTN_REC", "/BTN_PLAY", "/BTN_NEXT", "/MODE", "/I2C_SDA", "/I2C_SCL", "/ENC_A", "/ENC_B", "/ENC_SW", "/LED_DRV", "/LED_A"]
+order = ["+5V", "/AMP_VIN", "+3V3", "/I2S_BCLK", "/I2S_WS", "/I2S_SPK", "/I2S_MIC", "/SD_SCK", "/SD_MOSI", "/SD_MISO", "/SD_CS", "/MODE", "/DIAL", "/I2C_SDA", "/I2C_SCL", "/LED_DRV", "/LED_A"]
 failed = []
 for nm in order:
     k = netid[nm]; pads = terms[nm]; w = 0.3 if nm in POWER else 0.25
@@ -244,11 +239,9 @@ pinlabels("J1", FEATHER_16, 4.4, 0.8); pinlabels("J2", FEATHER_12, -4.4, 0.8)
 silk("USB end", 6.5, 35.5, 1.0, 90)
 silk("JP1 1-2: USB 5V", 59.0, 19.6, 0.9, 0); silk("JP1 2-3: 3.3V", 59.0, 21.3, 0.9, 0)
 silk("LED+", 66.04, 24.2, 0.9, 0); silk("LED-", 66.04, 33.9, 0.9, 0)
-silk("REC", 15.24-3.9, 72.1, 1.0, 90); silk("PLAY", 27.94-3.9, 72.1, 1.0, 90); silk("NEXT", 40.64-3.9, 72.1, 1.0, 90)
 pinlabels("J7", [n for n,_ in LCD_PINS], -4.4); pinlabels("J8", [n for n,_ in MODE_PINS], -4.4)
-silk("DIAL", 59.5, 59.5, 1.0)
-silk("Super Secret Gossip Phone  rev A", 36, 89.5, 1.2)
-
+pinlabels("J9", ["PULSE", "GND"], -4.6)
+silk("Super Secret Gossip Phone  rev A", 36, 83.0, 1.2)
 for ref in ('H1','H2','H3','H4'):
     fpx = board.FindFootprintByReference(ref)
     fpx.Reference().SetVisible(False)

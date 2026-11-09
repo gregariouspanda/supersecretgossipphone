@@ -92,12 +92,10 @@ place("Device","C_Polarized_Small","C1","10uF","Capacitor_THT:CP_Radial_D5.0mm_P
 conn(None,"J7","20x4 I2C LCD (backpack)", PS % 4, 170, 200, LCD_PINS)
 place("Connector","Conn_01x03_Pin","J8","Mode toggle (on/on)","Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
       170, 240, nets_of_sw := {"1":"GND","2":"MODE","3":"+3V3"}, {"1":"LISTEN","2":"COM","3":"RECORD"})
-place("Device","RotaryEncoder_Switch","ENC1","EC11 dial","Rotary_Encoder:RotaryEncoder_Alps_EC11E-Switch_Vertical_H20mm",
-      240, 235, {"A":"ENC_A","B":"ENC_B","C":"GND","S1":"ENC_SW","S2":"GND"})
+place("Connector","Conn_01x02_Pin","J9","Rotary phone dial (pulse contact)","Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      240, 235, {"1":"DIAL","2":"GND"}, {"1":"PULSE","2":"GND"})
 place("Device","R_Small","R1","330R","Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal", 270, 190, {"1":"LED_DRV","2":"LED_A"})
 place("Connector","Conn_01x02_Pin","J6","External recording LED","Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical", 320, 105, {"1":"LED_A","2":"GND"}, {"1":"LED +","2":"LED -"})
-for i,(ref,net,lab) in enumerate([("SW1","BTN_REC","Record / Stop"),("SW2","BTN_PLAY","Play / Stop"),("SW3","BTN_NEXT","Next file")]):
-    place("Switch","SW_Push",ref,lab,"Button_Switch_THT:SW_PUSH_6mm", 285, 150+i*20, {"1":net,"2":"GND"})
 for i in range(4):
     place("Mechanical","MountingHole","H%d"%(i+1),"M2.5","MountingHole:MountingHole_2.7mm_M2.5", 345, 60+i*15, {})
 
